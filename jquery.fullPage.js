@@ -2014,7 +2014,11 @@
                 setState(v.slideIndex, v.slideAnchor, v.anchorLink, v.sectionIndex);
             }
 
-            performHorizontalMove(slides, v, true);
+            if (options.fadingEffect == true) {
+                performHorizontalFade(slides, v, true);
+            } else {
+                performHorizontalMove(slides, v, true);
+            }
         }
 
 
@@ -2034,6 +2038,25 @@
 
             //letting them slide again
             slideMoving = false;
+        }
+
+        function performHorizontalFade(slides, v, fireCallback) {
+            var allSlides = $(slides).find('.slide');
+            var nextSlide = allSlides[v.slideIndex];
+            v.prevSlide.css({'position': 'absolute', 'z-index': '101'});
+            $(nextSlide).css({'position': 'absolute', 'z-index': '100'});
+
+            v.prevSlide.fadeOut({
+                duration: options.scrollingSpeed,
+                easing: options.easing,
+                complete: function () {
+                    v.prevSlide.css({'position': '', 'z-index': ''});
+                    $(nextSlide).css({'position': '', 'z-index': ''});
+                    fireCallback && afterSlideLoads(v);
+                },
+            });
+
+            $(nextSlide).fadeIn(options.scrollingSpeed);
         }
 
         /**
@@ -2864,7 +2887,7 @@
         * Displays warnings
         */
         function displayWarnings(){
-            var extensions = ['fadingEffect', 'continuousHorizontal', 'scrollHorizontally', 'interlockedSlides', 'resetSliders', 'responsiveSlides', 'offsetSections', 'dragAndMove', 'scrollOverflowReset', 'parallax'];
+            var extensions = ['continuousHorizontal', 'scrollHorizontally', 'interlockedSlides', 'resetSliders', 'responsiveSlides', 'offsetSections', 'dragAndMove', 'scrollOverflowReset', 'parallax'];
             if($('html').hasClass(ENABLED)){
                 showError('error', 'Fullpage.js can only be initialized once and you are doing it multiple times!');
                 return;
